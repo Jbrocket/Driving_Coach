@@ -65,3 +65,27 @@ better object tracking mechanism
 
 
 ## Part 2
+### Source Dataset
+
+I acquired various videos (about 50 of various lengths) of different size from 
+one of the recommended raw data sources for road imagery: 
+https://www.cvlibs.net/datasets/kitti/raw_data.php
+I downloaded 50 so that I could use 30 videos for training, 10 videos for testing, 
+and 10 videos for the final demonstration. 
+
+Since driving is a very complex task with all the different objects coming into
+view from multiple angles, I don't think there needs to be a massive difference
+between the training and validation besides just being different videos, 
+as different videos imply different sceneries, people, objects, streets, 
+etc. But, both the training dataset and validation, I through in a variety
+between open road, residential, and city driving to see if the areas
+in which it can operate can be validated.
+
+Each video contains a minimum of 3 different types of objects which include, the road, 
+cars, and signs. The road is obviously very braod and there's a lot to look at for the road,
+but I'll count it as one object for simplicity sake. The number of these objects appearing 
+varies based on the video being shown. Some videos (espcially of city driving) also feature 
+pedestrians. Each video is just a bunch of images with a resolution of 1392x512 and has 
+daylight as its lighting, although the datasets also include similar videos with different
+lighting, such as greyscale. The weather is all daylight, and the camera recording are all 
+dashcams which either have CMOS or CCD sensors.
