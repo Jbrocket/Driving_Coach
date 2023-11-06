@@ -89,3 +89,47 @@ pedestrians. Each video is just a bunch of images with a resolution of 1392x512 
 daylight as its lighting, although the datasets also include similar videos with different
 lighting, such as greyscale. The weather is all daylight, and the camera recording are all 
 dashcams which either have CMOS or CCD sensors.
+
+## Part 3
+### preprocessing
+
+The data I have acquired is in frames rather than actual mp4 files. However, I want to use mp4
+files as there's a library that can overlay an mp4 with whatever I need to add for
+each frame, and on top of this, I took a suggestion from the previous part and recently got a dashcam.
+I will be also collecting my own data here pretty soon, but for now, everything I have done
+has been on the collected open source data. 
+
+To accommodate for the fact that I have frames rather than mp4 files for dashcam footage, I created the 
+mp4 files using cv2 in my create_video.py file. I'll give instructions in how to call create_video and 
+extraction.py later on. But what this essentially does it it stitches frames in the correct ordering into
+a videowriter object which then allows me to save the final video as an mp4. This is our input, then in order
+to perform feature extraction we run extraction.py
+
+for an example of how to run everything:
+
+```sh
+python create_video.py ./data/train/vid3/
+python extraction.py
+```
+
+Note: using this example, going to about 1 minute into the video I think demonstrates the lane tracing the best
+
+Then you'll have a video appear called output.mp4 that shows the features that have been attempted to be
+extracted. As of right now, I'm able to detect the road lanes with an okay accuracy, but when the road is cluttered,
+or the surroundings are crowded (and especially when there are train tracks), it becomes hard for
+my algorithm to find the road. I'm also trying to extract features from cars, people, and road signs, and right now
+I'm in the beginning stages of that by trying to extract features of contours I find based off of edges
+I find using canny edge detections.
+
+For feature extraction: What I am using to try to extract lines on the road is canny edge detection and 
+using that to then find a specific region of where I'm extracting these lines from, then applying a hough
+transform to show the lanes on the road (or at least what my program believes to be the lanes on the road).
+For detecting shapes and objects that appear on the road I'm still in beginning stages and have only made efforts
+to find objects based on area it takes up on the images. I want to extend this capabilities very soon and 
+look at shapes and colors as a means for identifying objects as well. So far, it uses canny edge detection as well
+since most objects on the road have defines edges, so canny edge detection is able to find where the edges in
+the image are, then I want to use these edges to identify shapes that I can use to then classify these objects
+into where they belong.
+
+I put some examples of how my program segments the data under a folder called segmentations. There you 
+will see a few images of how my program dissects the images to find what it needs to.
