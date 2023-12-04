@@ -194,3 +194,5 @@ took a considerable amount of time especially since I've been working alone, and
 the final turn in data for the final report. There is an example run of my kaggle notebook in this google drive (it was too big of a file):
 https://drive.google.com/drive/folders/1GA_3-uQQk7I1jObTi7rDkwR8mAHRqAxd?usp=sharing 
 This also contains a model that was too big to upload as well.
+
+EDIT: The model for h5 is in models/ and the notebook is in src/ so you can just look for these files in the repository
