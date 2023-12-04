@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import cv2
-#Import everything needed to edit/save/watch video clips
 from moviepy import editor
 import moviepy
 
@@ -132,27 +131,7 @@ def draw_lane_lines(image, lines, color=[255, 0, 0], thickness=12):
     return cv2.addWeighted(image, 1.0, line_image, 1.0, 0.0)
 
 def object_detection(image):
-    grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-    lower_bound = np.array([0, 0, 100], dtype=np.uint8)
-    upper_bound = np.array([100, 100, 255], dtype=np.uint8)
-    mask = cv2.inRange(image, lower_bound, upper_bound)
-
-    combined_mask = cv2.bitwise_or(grayscale, mask)
-
-    edges = cv2.Canny(combined_mask, threshold1=30, threshold2=100)
-
-    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    min_area = 1000
-    min_length = 100
-    max_area = 5000
-
-    for contour in contours:
-        # Filter contours based on size or shape criteria
-        if cv2.contourArea(contour) > min_area and cv2.arcLength(contour, True) > min_length and cv2.contourArea(contour) < max_area:
-            # Draw bounding box around detected objects
-            x, y, w, h = cv2.boundingRect(contour)
-            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    pass
             
 def line_detection(image):
     global frame_num
@@ -206,5 +185,6 @@ def process_video(test_video, output_video):
     processed = input_video.fl_image(frame_processor)
     processed.write_videofile(output_video, audio=False)
      
-# calling driver function
-process_video('input.mp4','output.mp4')
+if __name__ == "__main__":
+    import sys
+    process_video(sys.argv[1],'output.mp4')
