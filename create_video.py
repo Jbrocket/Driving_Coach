@@ -2,24 +2,35 @@ import cv2
 import sys
 import os
 
-if __name__ == "__main__":
-    frame_width = 1392  # Adjust to your frame width
-    frame_height = 512  # Adjust to your frame height
-    frame_rate = 10  # Adjust to your desired frame rate (frames per second)
+import imageio
+import os
 
-    frame_directory = sys.argv[1]
+# Path to the directory containing JPG files
+input_directory = sys.argv[1]
 
-    frame_files = [f for f in os.listdir(frame_directory) if f.endswith('.png')]
-    frame_files.sort()
+# Output video file name
+output_video = 'output.mp4'
+ref = {}
 
-    # Create the VideoWriter object
-    out = cv2.VideoWriter('input.mp4', cv2.VideoWriter_fourcc(*'mp4v'), frame_rate, (frame_width, frame_height), isColor=True)
+# List all JPG files in the directory
+image_files = [file for file in os.listdir(input_directory) if file.endswith('.jpg')]
+for i in range(len(image_files)):
+    str = image_files[i]
+    numbers = str[15:]
+    # print(numbers[:-4])
+    ref[int(numbers[:-4])] = image_files[i]
 
-    # Loop through the image files and write them to the video
-    for frame_file in frame_files:
-        frame_path = os.path.join(frame_directory, frame_file)
-        frame = cv2.imread(frame_path)
-        out.write(frame)
+image_files.sort()
+# Create an ImageIO writer with FFmpeg
+writer = imageio.get_writer(output_video, fps=30)
 
-    # Release the VideoWriter and close the video file
-    out.release()
+# Iterate through image files and add them to the video
+for i in range(len(image_files)):
+    image_path = os.path.join(input_directory, ref[i])
+    img = imageio.imread(image_path)
+    writer.append_data(img)
+
+# Close the writer
+writer.close()
+
+print(f"Video created: {output_video}")

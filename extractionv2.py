@@ -154,18 +154,67 @@ def weighted_img(img, initial_img, α=0.8, β=1., λ=0.):
     """
     return cv2.addWeighted(initial_img, α, img, β, λ)
 
-def frame_processor(image):
+def visualize_predictions(image, picture_to_be_modified, best_model):
+    
+    # Create a figure and axis
+    fig, ax = plt.subplots(1)
+    prediction = best_model.predict(image)
+    pred = prediction[0].prediction
+
+    # Extract prediction information
+    bboxes_xyxy = pred.bboxes_xyxy
+    confidence = pred.confidence
+    labels = pred.labels
+
+    # Convert bboxes from xyxy format to xywh format
+    bboxes_xywh = np.zeros_like(bboxes_xyxy)
+    bboxes_xywh[:, 0] = (bboxes_xyxy[:, 0] + bboxes_xyxy[:, 2]) / 2  # x center
+    bboxes_xywh[:, 1] = (bboxes_xyxy[:, 1] + bboxes_xyxy[:, 3]) / 2  # y center
+    bboxes_xywh[:, 2] = bboxes_xyxy[:, 2] - bboxes_xyxy[:, 0]  # width
+    bboxes_xywh[:, 3] = bboxes_xyxy[:, 3] - bboxes_xyxy[:, 1]  # height
+
+    # Iterate over each prediction and draw the bounding box
+    for i in range(len(bboxes_xywh)):
+        bbox = bboxes_xywh[i]
+        label = int(labels[i])
+        confidence_score = float(confidence[i])
+
+        # Create a Rectangle patch
+        rect = patches.Rectangle(
+            (bbox[0] - bbox[2] / 2, bbox[1] - bbox[3] / 2),  # (x, y)
+            bbox[2],  # width
+            bbox[3],  # height
+            linewidth=2,
+            edgecolor='r',
+            facecolor='none',
+        )
+
+        # Add the patch to the Axes
+        ax.add_patch(rect)
+        text_x = bbox[0] - bbox[2] / 2
+        text_y = bbox[1] + bbox[3] / 2
+        ax.text(text_x, text_y, f'Car {confidence_score:.2f}', color='r')
+
+    # Overlay the modified image with bounding boxes on the original image
+    ax.imshow(picture_to_be_modified)
+
+    # Do not show axes
+    ax.axis('off')
+
+    # Save the modified image with bounding boxes
+    fig.canvas.draw()
+    modified_image = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+    modified_image = modified_image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+
+    return modified_image
+
+def frame_processor(image, car_model):
     """
     Process the input frame to detect lane lines.
     Parameters:
         image: image of a road where one wants to detect lane lines
         (we will be passing frames of video to this function)
     """
-    preprocessed_frame = cv2.resize(image, (64, 64)) / 255.0  # Resize to match the model's input shape
-
-    # Make predictions using the model
-    predictions = car_detection_model.predict(np.expand_dims(preprocessed_frame, axis=0))
-    
     # Grayscale
     grayed_img = grayscale(image)
     
@@ -186,40 +235,18 @@ def frame_processor(image):
     
     #Finally we apply the Hough transform to detect the lines in the image.
     lines_img = hough_lines(masked_img,1,np.pi/180,40,30,200)
-    
-   
     result = weighted_img(lines_img,image)
-
-    # Process the predictions and draw bounding boxes
-    pred_bbox = predictions[0]
-
-    # Map predicted bounding box coordinates back to the original resolution
-    original_shape = result.shape[:2]
-    pred_bbox_original_resolution = [
-        pred_bbox[0],  # xmin
-        pred_bbox[1],  # ymin
-        pred_bbox[2],  # xmax
-        pred_bbox[3]  # ymax
-    ]
-
-    # Draw bounding box on the original frame
-    xmin, ymin, xmax, ymax = map(int, pred_bbox_original_resolution)
-    cv2.rectangle(result, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+    
+    result = visualize_predictions(image, result, car_model)
+#     # Convert the result image to bytes
+#     _, img_bytes = cv2.imencode('.png', result)
+    
+#     # Display the image within the loop
+#     display(Image(data=img_bytes))
     
     return result
- 
-# driver function
-def process_video(test_video, output_video):
-    """
-    Read input video stream and produce a video file with detected lane lines.
-    Parameters:
-        test_video: location of input video file
-        output_video: location where output video file is to be saved
-    """
-    input_video = editor.VideoFileClip(test_video, audio=False)
-    processed = input_video.fl_image(frame_processor)
-    processed.write_videofile(output_video, audio=False)
     
 if __name__ == "__main__":
     import sys
-    process_video(sys.argv[1],'output.mp4')
+    pass
+    # process_video(sys.argv[1],'output.mp4')
