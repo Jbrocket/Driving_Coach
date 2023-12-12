@@ -196,3 +196,51 @@ https://drive.google.com/drive/folders/1GA_3-uQQk7I1jObTi7rDkwR8mAHRqAxd?usp=sha
 This also contains a model that was too big to upload as well.
 
 EDIT: The model for h5 is in models/ and the notebook is in src/ so you can just look for these files in the repository
+
+
+## Part 5 FINAL
+
+### Dataset
+https://www.kaggle.com/datasets/sshikamaru/car-object-detection/data
+https://www.kaggle.com/code/jonathanbrockett/yolo-car-object-detection/edit ### MY CODE TO TRAIN IT
+I was only able to implement car detection by trianing a yolo-nas model on this dataset.
+1001 training images and 175 testing images.
+The results are as follows: 
+Mean Average Point Precision: 0.975
+F1: 0.3768
+Recall: 0.08 
+Precision: 0.2331.
+
+So while the model is good at creating the bounding boxes, it can be prone to making false positives at times and also
+doesn't always spot the cars. This is actually evident when watching the processed videos I created where Cars do get
+picked up by the model, but it's inconsistent mainly based on lighting and view of the car given. For instance, it's more
+likely to pick up the side of a car rather than the front, and this might be due to the fact that the dataset is mainly
+comprised of side views. What is interesting though is since the bounding boxes are really good, you can make an annotated
+dataset based on this model alone by taking anything with a high confidence and saving the frame and bounding box. These were
+the measurements achieved on the test data, but the test data is completely separate from the application. If we wanted to see
+better results on the test data, then I think we would need a bigger annotated dataset to train on and more epochs. The dataset
+itself was only about 1001 annotated pictures and the variety collected didn't vary much which is what I believe led to issues. 
+Having more data should help the model train better on certain profiles of a car such as the front and backsides which 
+it doesn't seem to pick up as easily. On top of that, I think if that were the case it would also perform better on the 
+processing of actual videos as well since one of its major weakpoints was dealing with certain angles of a car that it probably 
+wasn't as used to. A variety of lighting could've helped as well (more data is the theme here) since the annotated dataset
+I found mainly comprises of very similar angles and lighting of cars on a specific type of road. So a bigger variety in 
+environemnt, lighting, car angles, etc would've been better in both creating a model that performs in test and applying it
+to actual roadside footage. The model overall does a pretty decent job at spotting cars, it's noticeably better in certain
+circumstances where the lighting is good and the car sides are more apparent, but it's a good starting place in being
+able to identify objects that are on the road. 
+
+In terms of contribution, since this is a solo project I did everything including training the model, creating the hough
+transform to detect lane lines, processing the videos through the different modifications that were suggested by the model
+and by the hough transform, finding the dataset to use, and some data collection using a dash cam as well for actual
+videos to demonstrate the product on.
+
+To see how I used the mdoel and line detection in code, look at extractionv2.py which has a lot of my implementation work,
+then look at https://www.kaggle.com/code/jonathanbrockett/yolo-car-object-detection/edit and just run all.
+
+To Create a video that I already processed frame by frame with the car-detection model and my lane detector run
+```sh
+python create_video data/processed_videos/<chosen_video>
+```
+
+There should be two output files already in the directory which is what you get from running the above command.
